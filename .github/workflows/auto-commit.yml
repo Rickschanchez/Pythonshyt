@@ -1,0 +1,30 @@
+name: Daily Bright Commits
+
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Git User
+        run: |
+          git config user.name "nishant4671"
+          git config user.email "nishantkr4671@gmail.com"
+
+      - name: Generate 5 Commits
+        run: |
+          for i in {1..5}
+          do
+            echo "$(date) - Commit number $i" >> daily-activity.log
+            git add daily-activity.log
+            git commit -m "Daily sync #$i"
+          done
+          git push
