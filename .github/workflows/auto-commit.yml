@@ -17,7 +17,7 @@ jobs:
       - name: Setup Git User
         run: |
           git config user.name "nishant4671"
-          git config user.email "nishantkr4671@gmail.com"
+          git config user.email "nishant4671@gmail.com"
 
       - name: Generate 5 Commits
         run: |
