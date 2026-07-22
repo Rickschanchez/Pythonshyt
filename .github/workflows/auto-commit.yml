@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate 5 Commits
         run: |
-          for i in {1..5}
+          for i in {1..9}
           do
             echo "$(date) - Commit number $i" >> daily-activity.log
             git add daily-activity.log
