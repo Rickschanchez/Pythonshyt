@@ -14,17 +14,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Git User
+      - name: Setup Git
         run: |
           git config user.name "nishant4671"
-          git config user.email "nishant4671kr@gmail.com"
+          git config user.email "nishantkr4671@gmail.com"
 
-      - name: Generate 5 Commits
+      - name: Generate 8 Commits
         run: |
-          for i in {1..9}
+          # Pull latest to avoid conflicts
+          git pull origin main --rebase || true
+          
+          # Loop 8 times for dark green
+          for i in {1..8}
           do
-            echo "$(date) - Commit number $i" >> daily-activity.log
+            echo "$(date) - CORRECT EMAIL - Commit #$i" >> daily-activity.log
             git add daily-activity.log
             git commit -m "Daily sync #$i"
           done
-          git push
+          
+          git push origin main
