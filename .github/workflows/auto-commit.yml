@@ -2,7 +2,7 @@ name: Daily Bright Commits
 
 on:
   schedule:
-    - cron: '55 19 * * *'
+    - cron: '17 20 * * *'
   workflow_dispatch:
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Git User
         run: |
           git config user.name "nishant4671"
-          git config user.email "nishant4671@gmail.com"
+          git config user.email "nishant4671kr@gmail.com"
 
       - name: Generate 5 Commits
         run: |
