@@ -1,5 +1,4 @@
-Based on the repository structure you've shared, here's a professional README for your **daily-bot** project. It assumes the bot automatically logs daily activity 
-# 📅 Daily Bot
+📅 Daily Bot
 
 **Daily Bot** is an automated GitHub bot that tracks daily activity and commits it to your repository. Powered by GitHub Actions, it runs on a scheduled basis, appends a timestamp or log entry to a central activity file, and automatically pushes the update – ensuring you maintain a consistent, auditable record of your progress or system status.
 
