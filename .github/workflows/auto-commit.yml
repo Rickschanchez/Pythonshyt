@@ -1,35 +1,89 @@
-name: Daily Bright Commits
+name: Daily Variable Commits
 
 on:
   schedule:
-    - cron: '17 20 * * *'
+    # Runs daily at 04:30 UTC (10:00 AM IST)
+    - cron: '30 4 * * *'
   workflow_dispatch:
+    inputs:
+      force_run:
+        description: 'Force commit generation even if rest day condition matches'
+        required: false
+        default: 'true'
 
 jobs:
-  build:
+  commit-job:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Setup Git
+      - name: Setup Git Identity
         run: |
           git config user.name "Rickschanchez"
           git config user.email "shekhardwivedi2006@gmail.com"
 
-      - name: Generate 8 Commits
+      - name: Pull Latest Changes
         run: |
-          # Pull latest to avoid conflicts
           git pull origin main --rebase || true
+
+      - name: Variable Commit Engine
+        run: |
+          DAY_OF_WEEK=$(date +%u) # 1=Mon, 2=Tue, ..., 6=Sat, 7=Sun
+          EVENT_NAME="${{ github.event_name }}"
+          FORCE_RUN="${{ github.event.inputs.force_run }}"
           
-          # Loop 8 times for dark green
-          for i in {1..8}
-          do
-            echo "$(date) - CORRECT EMAIL - Commit #$i" >> daily-activity.log
+          # Roll a 1-100 random number
+          ROLL=$((RANDOM % 100 + 1))
+          
+          echo "Current Day of Week: $DAY_OF_WEEK (1=Mon ... 7=Sun)"
+          echo "Random Roll: $ROLL"
+          echo "Triggered by: $EVENT_NAME"
+
+          IS_REST_DAY=false
+          NUM_COMMITS=0
+
+          # Rest day logic only applies to scheduled cron runs (manual dispatch bypasses by default)
+          if [ "$EVENT_NAME" = "schedule" ] && [ "$FORCE_RUN" != "true" ]; then
+            # Sunday: ~60% chance to rest (0 commits)
+            if [ "$DAY_OF_WEEK" -eq 7 ] && [ "$ROLL" -le 60 ]; then
+              echo "Sunday rest day selected."
+              IS_REST_DAY=true
+            # General random rest day (~10% chance)
+            elif [ "$ROLL" -le 10 ]; then
+              echo "Random rest day selected."
+              IS_REST_DAY=true
+            fi
+          fi
+
+          if [ "$IS_REST_DAY" = true ]; then
+            echo "Skipping commit generation for today's rest day."
+            exit 0
+          fi
+
+          # Variable commit count based on day
+          if [ "$DAY_OF_WEEK" -eq 6 ]; then
+            # Saturday: lighter activity (1 to 4 commits)
+            NUM_COMMITS=$((RANDOM % 4 + 1))
+          elif [ "$DAY_OF_WEEK" -eq 7 ]; then
+            # Sunday (if not resting): 1 to 3 commits
+            NUM_COMMITS=$((RANDOM % 3 + 1))
+          else
+            # Weekdays: 4 to 8 commits (variable)
+            NUM_COMMITS=$((RANDOM % 5 + 4))
+          fi
+
+          echo "Target commits for today: $NUM_COMMITS"
+
+          for i in $(seq 1 $NUM_COMMITS); do
+            TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            echo "$TIMESTAMP - Automated daily update #$i of $NUM_COMMITS" >> daily-activity.log
             git add daily-activity.log
-            git commit -m "Daily sync #$i"
+            git commit -m "chore(sync): daily activity log #$i"
+            sleep $((RANDOM % 2 + 1))
           done
-          
+
           git push origin main
